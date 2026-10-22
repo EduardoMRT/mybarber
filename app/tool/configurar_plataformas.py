@@ -113,13 +113,11 @@ delegate = raiz / 'ios/Runner/AppDelegate.swift'
 if delegate.exists():
     s = ler(delegate)
     if 'UNUserNotificationCenter' not in s:
-        alvo = 'GeneratedPluginRegistrant.register(with: self)'
+        trecho = 'if #available(iOS 10.0, *) {\n      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate\n    }\n    '
+        # template novo (motor implicito) e antigo: insere antes do retorno do didFinishLaunching
+        alvo = 'return super.application(application, didFinishLaunchingWithOptions: launchOptions)'
         if alvo in s:
-            s = s.replace(
-                alvo,
-                'if #available(iOS 10.0, *) {\n      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate\n    }\n    ' + alvo,
-                1,
-            )
+            s = s.replace(alvo, trecho + alvo, 1)
             gravar(delegate, s)
         else:
             avisos.append('AppDelegate.swift com formato diferente: configure o delegate de notificacoes manualmente')
