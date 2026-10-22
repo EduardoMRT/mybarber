@@ -90,4 +90,29 @@ class CalculadoraHorariosTest {
         assertThat(CalculadoraHorarios.cabeNaJanela(p, LocalTime.of(9, 10))).isTrue();
         assertThat(CalculadoraHorarios.cabeNaJanela(p, LocalTime.of(10, 40))).isFalse();
     }
+
+    @Test
+    void encaixeColado_aproveitaVaoForaDaGrade() {
+        // caso real: barba 12:40-13:00, corte 13:30, intervalo de 2 min, grade de 15
+        List<Janela> janelas = List.of(j("12:00", "14:30"));
+        List<Intervalo> ocupados = List.of(i("12:40", "13:00"), i("13:30", "14:00"));
+        Parametros barba = new Parametros(DIA, BARBA, 20, 15, 2, janelas, ocupados, List.of(), null);
+        List<LocalTime> livres = CalculadoraHorarios.disponiveis(barba);
+        // 13:00 + 2 min = 13:02 -> arredondado para 13:05; termina 13:25 + 2 = 13:27, antes das 13:30
+        assertThat(livres).contains(LocalTime.of(13, 5));
+        // pela grade sozinha nao haveria nada no vao: 13:00 bate no intervalo e 13:15 invade as 13:30
+        assertThat(livres).doesNotContain(LocalTime.of(13, 0), LocalTime.of(13, 15));
+        // colado depois do corte das 13:30: 14:00 + 2 = 14:02 -> 14:05 (termina 14:25 dentro da faixa)
+        assertThat(livres).contains(LocalTime.of(14, 5));
+    }
+
+    @Test
+    void encaixeColado_antesDoProximoAtendimento() {
+        // livre das 09:00 as 10:00 (cliente as 10:00), servico de 40 min, grade de 15:
+        // a grade so daria 09:00 e 09:15; colado antes do proximo da 09:20
+        List<Janela> janelas = List.of(j("09:00", "12:00"));
+        List<Intervalo> ocupados = List.of(i("10:00", "10:30"));
+        Parametros p = new Parametros(DIA, CORTE, 40, 15, 0, janelas, ocupados, List.of(), null);
+        assertThat(CalculadoraHorarios.disponiveis(p)).contains(LocalTime.of(9, 20)).doesNotContain(LocalTime.of(9, 30));
+    }
 }

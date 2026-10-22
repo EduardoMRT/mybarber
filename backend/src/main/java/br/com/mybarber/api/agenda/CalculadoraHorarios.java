@@ -44,24 +44,70 @@ public final class CalculadoraHorarios {
             LocalDateTime naoAntesDe) {
     }
 
-    /** Horarios de inicio oferecidos ao cliente, alinhados a grade (RN04). */
+    /** Passo do "encaixe colado": horarios colados num atendimento sao arredondados para multiplos de 5 min. */
+    static final int PASSO_ENCAIXE = 5;
+
+    /**
+     * Horarios de inicio oferecidos ao cliente.
+     *
+     * Alem da grade da barbearia (RN04, ex.: de 15 em 15 min a partir do inicio da faixa),
+     * oferece tambem os horarios "colados": logo depois de cada atendimento ou bloqueio
+     * (fim + intervalo) e logo antes do proximo, arredondados para 5 min. Assim um vao que
+     * nao comeca na grade (ex.: 13:02 depois de uma barba) nao e desperdicado.
+     */
     public static List<LocalTime> disponiveis(Parametros p) {
         TreeSet<LocalTime> resultado = new TreeSet<>();
         int grade = Math.max(5, p.gradeMin());
+        int dur = p.duracaoMin();
+        int gap = Math.max(0, p.intervaloMin());
+        LocalDateTime meiaNoite = p.data().atStartOfDay();
+
+        // pontos colados em atendimentos e bloqueios (minutos desde a meia-noite do dia)
+        TreeSet<Integer> colados = new TreeSet<>();
+        for (Intervalo o : p.agendamentos()) {
+            colados.add(acima(minutosDesde(meiaNoite, o.fim()) + gap));
+            colados.add(abaixo(minutosDesde(meiaNoite, o.inicio()) - gap - dur));
+        }
+        for (Intervalo b : p.bloqueios()) {
+            colados.add(acima(minutosDesde(meiaNoite, b.fim())));
+            colados.add(abaixo(minutosDesde(meiaNoite, b.inicio()) - dur));
+        }
+
         for (Janela janela : p.janelas()) {
             if (!janela.aceita(p.servicoId())) {
                 continue;
             }
             int ini = minutos(janela.inicio());
             int fim = minutosFim(janela.fim());
-            for (int t = ini; t + p.duracaoMin() <= fim; t += grade) {
-                LocalDateTime inicio = p.data().atStartOfDay().plusMinutes(t);
+            TreeSet<Integer> candidatos = new TreeSet<>();
+            for (int t = ini; t + dur <= fim; t += grade) {
+                candidatos.add(t);
+            }
+            candidatos.add(abaixo(fim - dur)); // ultimo horario que ainda cabe no fim da faixa
+            candidatos.addAll(colados);
+            for (int t : candidatos) {
+                if (t < ini || t + dur > fim) {
+                    continue;
+                }
+                LocalDateTime inicio = meiaNoite.plusMinutes(t);
                 if (livre(p, inicio)) {
                     resultado.add(inicio.toLocalTime());
                 }
             }
         }
         return new ArrayList<>(resultado);
+    }
+
+    private static int minutosDesde(LocalDateTime base, LocalDateTime t) {
+        return (int) java.time.Duration.between(base, t).toMinutes();
+    }
+
+    private static int acima(int m) {
+        return Math.floorDiv(m + PASSO_ENCAIXE - 1, PASSO_ENCAIXE) * PASSO_ENCAIXE;
+    }
+
+    private static int abaixo(int m) {
+        return Math.floorDiv(m, PASSO_ENCAIXE) * PASSO_ENCAIXE;
     }
 
     /** O cliente so pode reservar um horario que esteja na lista oferecida. */
