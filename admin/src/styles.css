@@ -1,0 +1,1384 @@
+/*
+ * MyBarber — portal
+ * Paleta tirada da barbearia clássica: azulejo verde-garrafa, metal de latão,
+ * porcelana branca das cubas. Uma família só (Archivo), com a largura variando
+ * entre títulos (mais largos, como letreiro esmaltado) e texto corrido.
+ */
+
+:root {
+  --verde-garrafa: #1d3a33;
+  --verde-azulejo: #2f6b5c;
+  --verde-azulejo-forte: #24584b;
+  --latao: #b8862f;
+  --latao-claro: #f3e6c9;
+  --porcelana: #f3f6f4;
+  --superficie: #ffffff;
+  --superficie-2: #eaf0ed;
+  --tinta: #17211e;
+  --tinta-2: #55625e;
+  --tinta-3: #7d8a86;
+  --linha: #d9e1dd;
+  --linha-forte: #c3cec9;
+
+  --st-confirmado: #2f6b5c;
+  --st-confirmado-fundo: #e0efe9;
+  --st-aguardando: #9a6412;
+  --st-aguardando-fundo: #fbefd8;
+  --st-concluido: #3f5375;
+  --st-concluido-fundo: #e3e9f3;
+  --st-cancelado: #a03d34;
+  --st-cancelado-fundo: #f8e3e0;
+  --st-falta: #6f4a85;
+  --st-falta-fundo: #efe6f4;
+
+  --barra-lateral: var(--verde-garrafa);
+  --barra-texto: #d8e4df;
+  --barra-texto-forte: #ffffff;
+
+  --sombra-modal: 0 24px 60px rgb(13 26 22 / 0.28);
+  --raio: 6px;
+  --raio-grande: 10px;
+  --foco: 0 0 0 3px color-mix(in srgb, var(--latao) 55%, transparent);
+
+  /* séries de gráfico (validadas para daltonismo e contraste) */
+  --serie-1: #118a6d;
+  --serie-2: #b07d22;
+  --grade-grafico: #e3e9e6;
+
+  --fonte: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --verde-azulejo: #63ad97;
+    --verde-azulejo-forte: #7cc1ac;
+    --latao: #d9ad5e;
+    --latao-claro: #3a3120;
+    --porcelana: #0f1715;
+    --superficie: #16211e;
+    --superficie-2: #1d2a26;
+    --tinta: #e4ece8;
+    --tinta-2: #a3b4ae;
+    --tinta-3: #7f918b;
+    --linha: #26332f;
+    --linha-forte: #34443f;
+    --st-confirmado: #7cc1ac;
+    --st-confirmado-fundo: #1c3530;
+    --st-aguardando: #e3b05c;
+    --st-aguardando-fundo: #3a2f1a;
+    --st-concluido: #a3b6d9;
+    --st-concluido-fundo: #232d40;
+    --st-cancelado: #ec9a90;
+    --st-cancelado-fundo: #3d2321;
+    --st-falta: #c9a6dd;
+    --st-falta-fundo: #33263c;
+    --barra-lateral: #0b1311;
+    --serie-1: #2b9a7d;
+    --serie-2: #b98d36;
+    --grade-grafico: #26332f;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --verde-azulejo: #63ad97;
+  --verde-azulejo-forte: #7cc1ac;
+  --latao: #d9ad5e;
+  --latao-claro: #3a3120;
+  --porcelana: #0f1715;
+  --superficie: #16211e;
+  --superficie-2: #1d2a26;
+  --tinta: #e4ece8;
+  --tinta-2: #a3b4ae;
+  --tinta-3: #7f918b;
+  --linha: #26332f;
+  --linha-forte: #34443f;
+  --st-confirmado: #7cc1ac;
+  --st-confirmado-fundo: #1c3530;
+  --st-aguardando: #e3b05c;
+  --st-aguardando-fundo: #3a2f1a;
+  --st-concluido: #a3b6d9;
+  --st-concluido-fundo: #232d40;
+  --st-cancelado: #ec9a90;
+  --st-cancelado-fundo: #3d2321;
+  --st-falta: #c9a6dd;
+  --st-falta-fundo: #33263c;
+  --barra-lateral: #0b1311;
+  --serie-1: #2b9a7d;
+  --serie-2: #b98d36;
+  --grade-grafico: #26332f;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--porcelana);
+  color: var(--tinta);
+  font-family: var(--fonte);
+  font-size: 15px;
+  line-height: 1.5;
+  font-variation-settings: 'wdth' 100;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-stretch: 112%;
+  font-variation-settings: 'wdth' 112;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 750;
+}
+
+h2 {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: 650;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--verde-azulejo);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--foco);
+}
+
+.numero {
+  font-variant-numeric: tabular-nums;
+}
+
+.mudo {
+  color: var(--tinta-2);
+}
+
+.pequeno {
+  font-size: 13px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ estrutura */
+
+.layout {
+  display: grid;
+  grid-template-columns: 248px 1fr;
+  min-height: 100%;
+}
+
+.lateral {
+  background: var(--barra-lateral);
+  color: var(--barra-texto);
+  display: flex;
+  flex-direction: column;
+  padding: 22px 14px 18px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px 22px;
+  color: var(--barra-texto-forte);
+  text-decoration: none;
+}
+
+.marca strong {
+  font-size: 20px;
+  font-weight: 800;
+  font-variation-settings: 'wdth' 125;
+  letter-spacing: -0.01em;
+}
+
+.marca-loja {
+  padding: 0 10px 18px;
+  font-size: 13px;
+  color: var(--barra-texto);
+  opacity: 0.85;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  margin-bottom: 14px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: var(--raio);
+  color: var(--barra-texto);
+  text-decoration: none;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+}
+
+.nav a:hover {
+  background: rgb(255 255 255 / 0.06);
+  color: var(--barra-texto-forte);
+}
+
+.nav a.active {
+  background: rgb(255 255 255 / 0.09);
+  color: var(--barra-texto-forte);
+  border-left-color: var(--latao);
+}
+
+.nav-grupo {
+  font-size: 12px;
+  color: var(--barra-texto);
+  opacity: 0.6;
+  padding: 16px 13px 6px;
+}
+
+.lateral-rodape {
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lateral-rodape button,
+.lateral-rodape a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 0;
+  background: none;
+  color: var(--barra-texto);
+  border-radius: var(--raio);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.lateral-rodape button:hover,
+.lateral-rodape a:hover {
+  background: rgb(255 255 255 / 0.06);
+  color: #fff;
+}
+
+.principal {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 26px 36px 18px;
+}
+
+.topo-titulo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.topo-acoes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.conteudo {
+  padding: 4px 36px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 1280px;
+  width: 100%;
+}
+
+.menu-movel {
+  display: none;
+}
+
+.aviso-bloqueio {
+  margin: 0 36px;
+  padding: 12px 16px;
+  border-radius: var(--raio);
+  background: var(--st-cancelado-fundo);
+  color: var(--st-cancelado);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .lateral {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 272px;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  .lateral.aberta {
+    transform: none;
+    box-shadow: var(--sombra-modal);
+  }
+
+  .menu-movel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--barra-lateral);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
+  .menu-movel button {
+    background: none;
+    border: 0;
+    color: #fff;
+    padding: 8px;
+    border-radius: var(--raio);
+    display: flex;
+  }
+
+  .topo {
+    padding: 20px 16px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .conteudo {
+    padding: 4px 16px 40px;
+  }
+
+  .aviso-bloqueio {
+    margin: 0 16px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+}
+
+.veu {
+  position: fixed;
+  inset: 0;
+  background: rgb(10 20 17 / 0.45);
+  z-index: 45;
+}
+
+/* ------------------------------------------------------------ superfícies */
+
+.painel {
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-grande);
+}
+
+.painel-cabeca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--linha);
+}
+
+.painel-corpo {
+  padding: 18px 20px;
+}
+
+.grade-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.grade-3-1 {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .grade-2,
+  .grade-3-1 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Faixa de números: sem cartões, só divisórias verticais */
+.numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-grande);
+}
+
+.numeros > div {
+  padding: 18px 20px;
+  border-left: 1px solid var(--linha);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.numeros > div:first-child {
+  border-left: 0;
+}
+
+.numeros dt {
+  font-size: 13px;
+  color: var(--tinta-2);
+}
+
+.numeros dd {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  font-variation-settings: 'wdth' 108;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.numeros dd small {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--tinta-3);
+  letter-spacing: 0;
+}
+
+@media (max-width: 700px) {
+  .numeros {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .numeros > div {
+    border-left: 0;
+    border-top: 1px solid var(--linha);
+  }
+
+  .numeros > div:nth-child(-n + 2) {
+    border-top: 0;
+  }
+
+  .numeros > div:nth-child(even) {
+    border-left: 1px solid var(--linha);
+  }
+}
+
+/* ------------------------------------------------------------ botões */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: var(--raio);
+  border: 1px solid var(--linha-forte);
+  background: var(--superficie);
+  color: var(--tinta);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--superficie-2);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primario {
+  background: var(--verde-azulejo);
+  border-color: var(--verde-azulejo);
+  color: #fff;
+}
+
+.btn-primario:hover {
+  background: var(--verde-azulejo-forte);
+}
+
+:root[data-theme='dark'] .btn-primario {
+  color: #0d1a16;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .btn-primario {
+    color: #0d1a16;
+  }
+}
+
+.btn-perigo {
+  color: var(--st-cancelado);
+  border-color: color-mix(in srgb, var(--st-cancelado) 40%, transparent);
+}
+
+.btn-perigo:hover {
+  background: var(--st-cancelado-fundo);
+}
+
+.btn-fantasma {
+  border-color: transparent;
+  background: transparent;
+}
+
+.btn-pequeno {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.btn-icone {
+  padding: 0;
+  width: 38px;
+}
+
+.btn-icone.btn-pequeno {
+  width: 32px;
+}
+
+/* ------------------------------------------------------------ formulários */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.linha-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.campo > span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tinta-2);
+}
+
+.campo input,
+.campo select,
+.campo textarea,
+.entrada {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 11px;
+  border-radius: var(--raio);
+  border: 1px solid var(--linha-forte);
+  background: var(--superficie);
+}
+
+.campo textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus,
+.entrada:focus {
+  border-color: var(--latao);
+}
+
+.campo small {
+  color: var(--tinta-3);
+  font-size: 12px;
+}
+
+.campo .erro,
+.erro-form {
+  color: var(--st-cancelado);
+  font-size: 13px;
+}
+
+.erro-form {
+  background: var(--st-cancelado-fundo);
+  padding: 10px 12px;
+  border-radius: var(--raio);
+}
+
+.checagem {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.checagem input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--verde-azulejo);
+}
+
+.fichas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ficha {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--linha-forte);
+  background: var(--superficie);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ficha[aria-pressed='true'],
+.ficha[aria-current='page'] {
+  background: var(--verde-azulejo);
+  border-color: var(--verde-azulejo);
+  color: #fff;
+}
+
+:root[data-theme='dark'] .ficha[aria-pressed='true'],
+:root[data-theme='dark'] .ficha[aria-current='page'] {
+  color: #0d1a16;
+}
+
+.acoes-form {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------ tabelas */
+
+.tabela-envelope {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabela th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--tinta-2);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--linha);
+  white-space: nowrap;
+}
+
+.tabela td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--linha);
+  vertical-align: middle;
+}
+
+.tabela tr:last-child td {
+  border-bottom: 0;
+}
+
+.tabela .direita {
+  text-align: right;
+}
+
+.tabela tbody tr:hover {
+  background: color-mix(in srgb, var(--superficie-2) 60%, transparent);
+}
+
+.vazio {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--tinta-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------ selos de status */
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.selo::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.selo-CONFIRMADO,
+.selo-ATIVA,
+.selo-PAGA,
+.selo-RECEITA {
+  color: var(--st-confirmado);
+  background: var(--st-confirmado-fundo);
+}
+
+.selo-AGUARDANDO_CLIENTE,
+.selo-PENDENTE {
+  color: var(--st-aguardando);
+  background: var(--st-aguardando-fundo);
+}
+
+.selo-CONCLUIDO {
+  color: var(--st-concluido);
+  background: var(--st-concluido-fundo);
+}
+
+.selo-CANCELADO,
+.selo-CANCELADA,
+.selo-BLOQUEADA,
+.selo-ATRASADA,
+.selo-DESPESA {
+  color: var(--st-cancelado);
+  background: var(--st-cancelado-fundo);
+}
+
+.selo-FALTA {
+  color: var(--st-falta);
+  background: var(--st-falta-fundo);
+}
+
+/* ------------------------------------------------------------ modal e avisos */
+
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  background: rgb(10 20 17 / 0.5);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 100;
+}
+
+.modal {
+  background: var(--superficie);
+  border-radius: var(--raio-grande);
+  width: min(560px, 100%);
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--sombra-modal);
+}
+
+.modal-largo {
+  width: min(820px, 100%);
+}
+
+.modal-cabeca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--linha);
+}
+
+.modal-corpo {
+  padding: 20px 22px;
+  overflow-y: auto;
+}
+
+.modal-rodape {
+  padding: 14px 22px;
+  border-top: 1px solid var(--linha);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.avisos {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 200;
+}
+
+.aviso {
+  background: var(--tinta);
+  color: var(--porcelana);
+  padding: 12px 16px;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra-modal);
+  max-width: 380px;
+  font-size: 14px;
+}
+
+.aviso-erro {
+  background: var(--st-cancelado);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .modal {
+    animation: surgir 0.16s ease-out;
+  }
+
+  .aviso {
+    animation: surgir 0.16s ease-out;
+  }
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* ------------------------------------------------------------ agenda do dia */
+
+.agenda-barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.agenda-dia {
+  font-size: 17px;
+  font-weight: 650;
+  font-variation-settings: 'wdth' 108;
+  min-width: 220px;
+}
+
+.agenda-colunas {
+  display: grid;
+  grid-template-columns: 56px repeat(var(--colunas, 1), minmax(220px, 1fr));
+  overflow-x: auto;
+}
+
+.agenda-cabeca-col {
+  position: sticky;
+  top: 0;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--linha);
+  border-left: 1px solid var(--linha);
+  font-weight: 650;
+  background: var(--superficie);
+  z-index: 2;
+}
+
+.agenda-horas {
+  position: relative;
+}
+
+.agenda-hora {
+  position: absolute;
+  right: 8px;
+  font-size: 12px;
+  color: var(--tinta-3);
+  transform: translateY(-50%);
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-coluna {
+  position: relative;
+  border-left: 1px solid var(--linha);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--linha) 0,
+    var(--linha) 1px,
+    transparent 1px,
+    transparent var(--px-hora)
+  );
+}
+
+/* Faixa fora do expediente */
+.agenda-fora {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0,
+    transparent 6px,
+    color-mix(in srgb, var(--linha) 70%, transparent) 6px,
+    color-mix(in srgb, var(--linha) 70%, transparent) 7px
+  );
+}
+
+/* Vão livre: mostra o que ainda cabe — a regra central do sistema */
+.agenda-vao {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  border: 1px dashed var(--linha-forte);
+  border-radius: var(--raio);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--tinta-3);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+}
+
+.agenda-vao:hover {
+  border-color: var(--verde-azulejo);
+  color: var(--verde-azulejo);
+}
+
+.agenda-bloco {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  border-radius: var(--raio);
+  padding: 6px 10px;
+  border: 0;
+  border-left: 4px solid var(--st-confirmado);
+  background: var(--st-confirmado-fundo);
+  color: var(--tinta);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.agenda-bloco strong {
+  font-size: 13.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenda-bloco span {
+  color: var(--tinta-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenda-bloco.st-AGUARDANDO_CLIENTE {
+  border-left-color: var(--st-aguardando);
+  background: var(--st-aguardando-fundo);
+}
+
+.agenda-bloco.st-CONCLUIDO {
+  border-left-color: var(--st-concluido);
+  background: var(--st-concluido-fundo);
+}
+
+.agenda-bloco.st-FALTA {
+  border-left-color: var(--st-falta);
+  background: var(--st-falta-fundo);
+}
+
+.agenda-bloco.bloqueio {
+  border-left-color: var(--tinta-3);
+  background: var(--superficie-2);
+  cursor: default;
+}
+
+.agenda-agora {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--latao);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.agenda-agora::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--latao);
+}
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--tinta-2);
+}
+
+/* ------------------------------------------------------------ horários semanais */
+
+.semana {
+  display: flex;
+  flex-direction: column;
+}
+
+.semana-dia {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--linha);
+}
+
+.semana-dia:last-child {
+  border-bottom: 0;
+}
+
+.faixa {
+  display: grid;
+  grid-template-columns: 120px 120px 1fr auto;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 760px) {
+  .semana-dia {
+    grid-template-columns: 1fr;
+  }
+
+  .faixa {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ------------------------------------------------------------ login */
+
+.login {
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 1fr);
+}
+
+.login-arte {
+  background: var(--verde-garrafa);
+  color: #e9efec;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+/* azulejo: grade de quadrados finos, como a parede de uma barbearia antiga */
+.login-arte::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+
+.login-arte > * {
+  position: relative;
+  z-index: 1;
+}
+
+.login-arte h1 {
+  font-size: clamp(34px, 4.4vw, 56px);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 125;
+  line-height: 1.02;
+  max-width: 12ch;
+  color: #fff;
+}
+
+.login-arte p {
+  max-width: 46ch;
+  color: #c7d6d0;
+}
+
+.login-filete {
+  width: 72px;
+  height: 4px;
+  background: var(--latao);
+  margin: 22px 0;
+}
+
+.login-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+}
+
+.login-form form {
+  width: min(380px, 100%);
+}
+
+@media (max-width: 860px) {
+  .login {
+    grid-template-columns: 1fr;
+  }
+
+  .login-arte {
+    padding: 32px 24px;
+  }
+}
+
+/* ------------------------------------------------------------ diversos */
+
+.notificacoes-lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.notificacao {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--linha);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notificacao.nao-lida {
+  background: color-mix(in srgb, var(--latao-claro) 55%, transparent);
+}
+
+.contador {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--latao);
+  color: #1b1408;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.mapa {
+  height: 320px;
+  border-radius: var(--raio);
+  border: 1px solid var(--linha-forte);
+  overflow: hidden;
+}
+
+.documento {
+  max-width: 76ch;
+  line-height: 1.65;
+}
+
+.documento h1 {
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+
+.documento h2 {
+  margin: 28px 0 8px;
+}
+
+.documento p,
+.documento ul {
+  margin: 0 0 12px;
+}
+
+.documento table {
+  border-collapse: collapse;
+  margin: 12px 0;
+  width: 100%;
+}
+
+.documento td,
+.documento th {
+  border: 1px solid var(--linha);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.barra-filtros {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.barra-filtros .campo {
+  min-width: 150px;
+}
+
+.lista-simples {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lista-simples li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--linha);
+}
+
+.lista-simples li:last-child {
+  border-bottom: 0;
+}
+
+.carregando {
+  padding: 40px;
+  text-align: center;
+  color: var(--tinta-2);
+}
+
+/* ------------------------------------------------------------ gráficos */
+
+.grafico {
+  height: 260px;
+  padding: 12px 8px 4px 0;
+}
+
+.grafico-tooltip {
+  background: var(--superficie);
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  padding: 8px 12px;
+  font-size: 13px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.12);
+}
+
+.grafico-legenda {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--tinta-2);
+}
+
+.grafico-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.grafico-legenda i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.ranking li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+}
+
+.ranking-barra {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--superficie-2);
+  overflow: hidden;
+}
+
+.ranking-barra > i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--serie-1);
+}
