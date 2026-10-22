@@ -10,6 +10,7 @@ import { dataLonga, hora, isoData, minutosParaTexto, somarDias } from '../../uti
 import { DetalheAgendamento, LancarManual, type PreManual } from './AgendaModais'
 
 const PX_HORA = 76
+const MARGEM = 12 // espaço no topo e no fim para os rótulos de hora não serem cortados
 const ocupa = (s: Agendamento['status']) => s === 'CONFIRMADO' || s === 'AGUARDANDO_CLIENTE' || s === 'CONCLUIDO'
 const min = (hhmm: string) => {
   const [h, m] = hhmm.split(':').map(Number)
@@ -101,8 +102,8 @@ export function Agenda() {
   ])
   const inicioDia = marcos.length ? Math.floor(Math.min(...marcos) / 60) * 60 : 8 * 60
   const fimDia = marcos.length ? Math.ceil(Math.max(...marcos) / 60) * 60 : 20 * 60
-  const y = (m: number) => ((m - inicioDia) / 60) * PX_HORA
-  const altura = y(fimDia)
+  const y = (m: number) => MARGEM + ((m - inicioDia) / 60) * PX_HORA
+  const altura = y(fimDia) + MARGEM
 
   const hoje = isoData(new Date()) === diaIso
   const agora = new Date()
@@ -169,7 +170,7 @@ export function Agenda() {
 
               <div className="agenda-horas" style={{ height: altura }} aria-hidden>
                 {Array.from({ length: (fimDia - inicioDia) / 60 + 1 }, (_, i) => (
-                  <span key={i} className="agenda-hora" style={{ top: i * PX_HORA }}>
+                  <span key={i} className="agenda-hora" style={{ top: MARGEM + i * PX_HORA }}>
                     {hhmm(inicioDia + i * 60)}
                   </span>
                 ))}

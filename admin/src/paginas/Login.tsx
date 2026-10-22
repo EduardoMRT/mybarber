@@ -37,11 +37,10 @@ export function Login() {
             serviços e preços, remarca quando precisar e acompanha o caixa do mês.
           </p>
         </div>
-        <p className="pequeno">
+        <p className="pequeno" style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
           <Link to="/legal/termos-barbearia" style={{ color: '#c7d6d0' }}>
             Termos para barbearias
-          </Link>{' '}
-          ·{' '}
+          </Link>
           <Link to="/legal/politica-de-privacidade" style={{ color: '#c7d6d0' }}>
             Política de privacidade
           </Link>
