@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   Bell, Building2, CalendarDays, Clock, CreditCard, FileText, Gauge, KeyRound, LogOut, Menu, Receipt,
@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { api } from '../api/client'
-import type { ResumoNotificacoes } from '../api/types'
+import type { Barbearia, ResumoNotificacoes } from '../api/types'
 import { BotaoTema } from './Tema'
 
 type Item = { para: string; rotulo: string; icone: typeof Bell; fim?: boolean }
@@ -50,6 +50,14 @@ export function Layout() {
     enabled: !ehAdmin,
     refetchInterval: 60_000,
   })
+
+  const ehDono = usuario?.papel === 'ADMIN_BARBEARIA'
+  const barbearia = useQuery({
+    queryKey: ['barbearia'],
+    queryFn: () => api.get<Barbearia>('/api/painel/barbearia'),
+    enabled: ehDono,
+  })
+  const semLocal = ehDono && barbearia.data != null && (barbearia.data.latitude == null || barbearia.data.longitude == null)
 
   const itens = ehAdmin ? itensAdmin : usuario?.papel === 'ADMIN_BARBEARIA' ? itensDono : itensBarbeiro
   const naoLidas = avisos.data?.naoLidas ?? 0
@@ -120,6 +128,17 @@ export function Layout() {
               {usuario.motivoBloqueio ?? 'Entre em contato com o suporte.'} Enquanto isso, ela não aparece no app e o portal
               fica só para consulta.
             </span>
+          </div>
+        )}
+        {semLocal && local.pathname !== '/barbearia' && (
+          <div className="aviso-local" role="status">
+            <span>
+              <strong>Marque o local da barbearia no mapa.</strong> Sem isso, ela não aparece na lista de barbearias próximas do app;
+              só para quem busca pelo nome ou pela cidade.
+            </span>
+            <Link className="btn btn-pequeno" to="/barbearia">
+              Marcar no mapa
+            </Link>
           </div>
         )}
         <Outlet />

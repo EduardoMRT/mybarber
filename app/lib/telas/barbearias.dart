@@ -17,7 +17,7 @@ class TelaBarbearias extends StatefulWidget {
   State<TelaBarbearias> createState() => _TelaBarbeariasState();
 }
 
-class _TelaBarbeariasState extends State<TelaBarbearias> {
+class _TelaBarbeariasState extends State<TelaBarbearias> with WidgetsBindingObserver {
   final _busca = TextEditingController();
   Timer? _espera;
   Posicao? _posicao;
@@ -25,15 +25,26 @@ class _TelaBarbeariasState extends State<TelaBarbearias> {
   List<BarbeariaResumo>? _lista;
   String? _erro;
   bool _carregando = true;
+  DateTime _ultimaBusca = DateTime.fromMillisecondsSinceEpoch(0);
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _localizarEBuscar();
+  }
+
+  /// Ao voltar para o app, atualiza a lista (novas barbearias, bloqueadas que sairam).
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && DateTime.now().difference(_ultimaBusca).inSeconds > 15) {
+      _buscar();
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _busca.dispose();
     _espera?.cancel();
     super.dispose();
@@ -49,6 +60,8 @@ class _TelaBarbeariasState extends State<TelaBarbearias> {
   }
 
   Future<void> _buscar() async {
+    if (!mounted) return;
+    _ultimaBusca = DateTime.now();
     setState(() {
       _carregando = true;
       _erro = null;
@@ -89,7 +102,11 @@ class _TelaBarbeariasState extends State<TelaBarbearias> {
                   Semantics(header: true, child: Text('Olá, $nome', style: t.textTheme.headlineSmall)),
                   const SizedBox(height: 4),
                   Text(
-                    _posicao != null ? 'Barbearias até 30 km de você' : 'Encontre uma barbearia',
+                    _busca.text.trim().isNotEmpty
+                        ? 'Resultados para “${_busca.text.trim()}”'
+                        : _posicao != null
+                            ? 'Barbearias até 30 km de você'
+                            : 'Encontre uma barbearia',
                     style: t.textTheme.bodyLarge?.copyWith(color: t.colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 16),
@@ -127,8 +144,8 @@ class _TelaBarbeariasState extends State<TelaBarbearias> {
                   child: Vazio(
                     icone: Icons.content_cut,
                     titulo: 'Nenhuma barbearia encontrada',
-                    texto: _posicao != null
-                        ? 'Ainda não há barbearias do MyBarber por perto. Tente buscar pela cidade.'
+                    texto: _busca.text.trim().isEmpty && _posicao != null
+                        ? 'Ainda não há barbearias do MyBarber por perto. Tente buscar pelo nome ou pela cidade.'
                         : 'Tente outro nome, bairro ou cidade.',
                   ),
                 )

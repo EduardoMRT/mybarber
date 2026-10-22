@@ -43,28 +43,49 @@ public class PublicoService {
                 .map(t -> new TipoCabeloDto(t.getId(), t.getNome(), t.getDescricao())).toList();
     }
 
-    /** Barbearias mais proximas (com lat/lng) ou por nome/cidade/bairro. */
+    /**
+     * Sem texto: barbearias ate o raio informado (precisam ter local marcado no mapa).
+     * Com texto (nome, bairro ou cidade): todas as que combinam, com ou sem local marcado
+     * e sem limite de raio; com a posicao do cliente, as mais proximas vem primeiro e as
+     * sem local no fim.
+     */
     @Transactional(readOnly = true)
     public List<BarbeariaResumoDto> buscar(Double lat, Double lng, Double raioKm, String texto) {
         List<BarbeariaResumoDto> lista = new ArrayList<>();
         String termo = texto == null || texto.isBlank() ? null : "%" + texto.trim().toLowerCase() + "%";
-        if (lat != null && lng != null) {
+        boolean temPosicao = lat != null && lng != null;
+
+        if (termo != null) {
+            for (Barbearia b : barbearias.buscarPorTexto(StatusBarbearia.ATIVA, termo)) {
+                Double d = temPosicao && temLocal(b)
+                        ? distanciaKm(lat, lng, b.getLatitude().doubleValue(), b.getLongitude().doubleValue())
+                        : null;
+                lista.add(resumo(b, d));
+            }
+            if (temPosicao) {
+                lista.sort(Comparator.comparing(BarbeariaResumoDto::distanciaKm,
+                        Comparator.nullsLast(Comparator.naturalOrder())));
+            }
+        } else if (temPosicao) {
             double raio = raioKm == null ? 30 : Math.max(1, Math.min(raioKm, 200));
             double dLat = raio / 111.0;
             double dLng = raio / (111.0 * Math.max(0.1, Math.cos(Math.toRadians(lat))));
             for (Barbearia b : barbearias.buscarNaArea(StatusBarbearia.ATIVA,
                     bd(lat - dLat), bd(lat + dLat), bd(lng - dLng), bd(lng + dLng))) {
-                if (termo != null && !combina(b, termo)) continue;
                 double d = distanciaKm(lat, lng, b.getLatitude().doubleValue(), b.getLongitude().doubleValue());
                 if (d <= raio) lista.add(resumo(b, d));
             }
             lista.sort(Comparator.comparing(BarbeariaResumoDto::distanciaKm));
         } else {
-            for (Barbearia b : barbearias.buscarPorTexto(StatusBarbearia.ATIVA, termo)) {
+            for (Barbearia b : barbearias.buscarPorTexto(StatusBarbearia.ATIVA, null)) {
                 lista.add(resumo(b, null));
             }
         }
         return lista.size() > LIMITE ? lista.subList(0, LIMITE) : lista;
+    }
+
+    private static boolean temLocal(Barbearia b) {
+        return b.getLatitude() != null && b.getLongitude() != null;
     }
 
     @Transactional(readOnly = true)
@@ -92,15 +113,6 @@ public class PublicoService {
                 b.getLatitude(), b.getLongitude(),
                 distancia == null ? null : Math.round(distancia * 10) / 10.0,
                 b.getTelefone(), barbeiros.countByBarbeariaIdAndAtivoTrue(b.getId()), aPartir);
-    }
-
-    private static boolean combina(Barbearia b, String termoLike) {
-        String t = termoLike.replace("%", "");
-        return contem(b.getNome(), t) || contem(b.getCidade(), t) || contem(b.getBairro(), t);
-    }
-
-    private static boolean contem(String campo, String t) {
-        return campo != null && campo.toLowerCase().contains(t);
     }
 
     private static BigDecimal bd(double v) {

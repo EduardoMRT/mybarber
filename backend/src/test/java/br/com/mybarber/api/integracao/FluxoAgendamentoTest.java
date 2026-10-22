@@ -86,6 +86,24 @@ class FluxoAgendamentoTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[?(@.id == " + barbeariaId + ")]").exists());
 
+        // 4b. barbearia sem local no mapa: some da busca por proximidade, mas aparece buscando pelo nome/cidade
+        mvc.perform(auth(post("/api/admin/barbearias"), admin).content("""
+                        {"dados":{"nome":"Sem Mapa %s","cidade":"Chavantes","uf":"SP"},
+                         "donoNome":"Dono Sem Mapa","donoEmail":"semmapa%s@teste.com","donoSenha":"Senha12345","donoAtende":true}
+                        """.formatted(sufixo, sufixo)))
+                .andExpect(status().isCreated());
+        mvc.perform(get("/api/public/barbearias").param("lat", "-22.98").param("lng", "-49.87"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.nome == 'Sem Mapa " + sufixo + "')]").doesNotExist());
+        mvc.perform(get("/api/public/barbearias").param("lat", "-22.98").param("lng", "-49.87").param("busca", "Sem Mapa " + sufixo))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Sem Mapa " + sufixo));
+        // busca por texto ignora o raio de 30 km (cliente longe, em Sao Paulo)
+        mvc.perform(get("/api/public/barbearias").param("lat", "-23.55").param("lng", "-46.63").param("busca", "Barbearia Teste " + sufixo))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(barbeariaId))
+                .andExpect(jsonPath("$[0].distanciaKm").isNumber());
+
         // 5. corte em cabelo liso dura 45 min
         mvc.perform(get("/api/public/horarios").param("barbeiroId", "" + barbeiroId)
                         .param("servicoId", "" + servicoId).param("tipoCabeloId", "" + LISO).param("data", dia.toString()))

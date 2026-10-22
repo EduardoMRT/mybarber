@@ -311,6 +311,29 @@ textarea {
   color: #fff;
 }
 
+.aviso-local {
+  margin: 20px 36px 0;
+  padding: 12px 16px;
+  border-radius: var(--raio);
+  background: var(--st-aguardando-fundo);
+  color: var(--tinta);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.aviso-local strong {
+  color: var(--st-aguardando);
+}
+
+@media (max-width: 900px) {
+  .aviso-local {
+    margin: 16px 16px 0;
+  }
+}
+
 .principal {
   min-width: 0;
   display: flex;

@@ -161,6 +161,11 @@ export function Barbearias() {
                         <div className="mudo pequeno">
                           {[b.cidade, b.uf].filter(Boolean).join('/') || 'Sem endereço'}, {b.barbeirosAtivos} barbeiro(s)
                         </div>
+                        {(b.latitude == null || b.longitude == null) && (
+                          <div className="pequeno" style={{ color: 'var(--st-aguardando)' }}>
+                            Sem local no mapa: não aparece na busca por proximidade
+                          </div>
+                        )}
                       </td>
                       <td>
                         {b.donoNome}
