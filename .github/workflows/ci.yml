@@ -26,8 +26,8 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
@@ -58,7 +58,7 @@ jobs:
               print(f"::notice title={r.get('name')}::{r.get('tests')} testes, {r.get('failures')} falhas, {r.get('errors')} erros, {r.get('skipped')} ignorados")
           print(f"::notice title=Total de testes::{total} testes, {falhas} com problema")
           PYX
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: success()
         with:
           name: mybarber-api
@@ -72,8 +72,8 @@ jobs:
       run:
         working-directory: admin
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: npm
@@ -81,3 +81,39 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+
+  app:
+    name: App (Flutter)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Plataformas (se ainda nao estiverem no repositorio)
+        run: |
+          if [ ! -d android ]; then
+            flutter create --platforms=android,ios --org br.com.mybarber --project-name mybarber .
+            python3 tool/configurar_plataformas.py
+          fi
+      - run: flutter pub get
+      - name: Analise estatica
+        run: |
+          set +e
+          flutter analyze --no-fatal-infos > analise.txt 2>&1; codigo=$?
+          cat analise.txt
+          grep -E "^\s*(error|warning) " analise.txt | head -40 | while read -r linha; do echo "::error title=flutter analyze::$linha"; done
+          grep -cE "^\s*info " analise.txt | xargs -I{} echo "::notice title=flutter analyze::{} infos"
+          exit $codigo
+      - run: flutter test
+      - name: Build APK (debug)
+        run: flutter build apk --debug
+

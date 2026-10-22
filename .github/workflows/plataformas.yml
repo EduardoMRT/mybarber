@@ -1,0 +1,42 @@
+name: Plataformas do app
+
+# Gera as pastas android/ e ios/ do app Flutter (flutter create) com as
+# configuracoes do MyBarber e faz commit delas no repositorio.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'app/tool/configurar_plataformas.py'
+      - '.github/workflows/plataformas.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Gerar android/ e ios/
+        working-directory: app
+        run: |
+          if [ ! -d android ] || [ ! -d ios ]; then
+            flutter create --platforms=android,ios --org br.com.mybarber --project-name mybarber .
+          fi
+          python3 tool/configurar_plataformas.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app
+          if git diff --cached --quiet; then
+            echo "::notice title=Plataformas::Nada a mudar"
+          else
+            git commit -m "App: pastas android e ios (flutter create + configuracao do MyBarber)"
+            git push
+            echo "::notice title=Plataformas::android/ e ios/ gerados e enviados"
+          fi
