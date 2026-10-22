@@ -13,12 +13,19 @@ interface Props {
 export function Modal({ titulo, aberto, aoFechar, children, rodape, largo }: Props) {
   const id = useId()
   const ref = useRef<HTMLDivElement>(null)
+  // guarda a função de fechar sem reexecutar o efeito a cada render
+  // (antes o foco voltava para o primeiro campo a cada tecla digitada)
+  const fecharRef = useRef(aoFechar)
+  useEffect(() => {
+    fecharRef.current = aoFechar
+  }, [aoFechar])
 
+  // roda só quando a janela abre ou fecha
   useEffect(() => {
     if (!aberto) return
     const anterior = document.activeElement as HTMLElement | null
     const tecla = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') aoFechar()
+      if (e.key === 'Escape') fecharRef.current()
     }
     document.addEventListener('keydown', tecla)
     const primeiro = ref.current?.querySelector<HTMLElement>('input, select, textarea, button:not([data-fechar])')
@@ -27,7 +34,7 @@ export function Modal({ titulo, aberto, aoFechar, children, rodape, largo }: Pro
       document.removeEventListener('keydown', tecla)
       anterior?.focus()
     }
-  }, [aberto, aoFechar])
+  }, [aberto])
 
   if (!aberto) return null
   return (
