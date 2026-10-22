@@ -39,11 +39,25 @@ jobs:
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: mybarber_test
-      - name: Relatorio de testes
-        if: failure()
+      - name: Resumo dos testes
+        if: always()
         run: |
-          for f in target/surefire-reports/*.txt; do echo "== $f"; cat "$f"; done
-          tail -n 200 target/surefire-reports/*-output.txt 2>/dev/null || true
+          python3 - <<'PYX'
+          import glob, xml.etree.ElementTree as ET
+          total = falhas = 0
+          for f in glob.glob('target/surefire-reports/TEST-*.xml'):
+              r = ET.parse(f).getroot()
+              total += int(r.get('tests', 0))
+              for tc in r.iter('testcase'):
+                  for tag in ('failure', 'error'):
+                      e = tc.find(tag)
+                      if e is not None:
+                          falhas += 1
+                          msg = (e.get('message') or e.text or '')[:900].replace('%', '%25').replace('\n', '%0A').replace('\r', '')
+                          print(f"::error title={tc.get('classname')}.{tc.get('name')}::{msg}")
+              print(f"::notice title={r.get('name')}::{r.get('tests')} testes, {r.get('failures')} falhas, {r.get('errors')} erros, {r.get('skipped')} ignorados")
+          print(f"::notice title=Total de testes::{total} testes, {falhas} com problema")
+          PYX
       - uses: actions/upload-artifact@v4
         if: success()
         with:
