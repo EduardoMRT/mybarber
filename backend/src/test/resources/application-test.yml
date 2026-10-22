@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:mybarber_test}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&createDatabaseIfNotExist=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+
+mybarber:
+  jwt:
+    segredo: segredo-de-teste-com-mais-de-32-caracteres-123
+  admin:
+    email: admin@teste.mybarber
+    senha: Admin12345

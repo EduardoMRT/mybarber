@@ -1,0 +1,25 @@
+# segredos
+.env
+*.env.local
+
+# backend
+backend/target/
+*.iml
+.idea/
+
+# admin
+admin/node_modules/
+admin/dist/
+admin/.env.local
+
+# flutter
+app/.dart_tool/
+app/build/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/android/local.properties
+app/android/key.properties
+app/android/app/upload-keystore.jks
+app/ios/Pods/
+
+.DS_Store

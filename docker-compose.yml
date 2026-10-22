@@ -1,0 +1,33 @@
+# Ambiente local: MySQL 8 + API. Para usar o banco da Locaweb, basta rodar a API com o backend/.env.
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: mybarber
+      MYSQL_USER: mybarber
+      MYSQL_PASSWORD: mybarber
+      MYSQL_ROOT_PASSWORD: root
+      TZ: America/Sao_Paulo
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-dados:/var/lib/mysql
+
+  api:
+    build: ./backend
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_NAME: mybarber
+      DB_USER: mybarber
+      DB_PASSWORD: mybarber
+      JWT_SECRET: ${JWT_SECRET:-troque-este-segredo-local-com-mais-de-32-caracteres}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@mybarber.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin12345}
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql-dados:
